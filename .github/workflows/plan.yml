@@ -4,10 +4,6 @@ name: Terraform Plan for Development
 on:
     workflow_call:
       inputs:
-        account:
-          description: 'The AWS account to deploy to (e.g., prod, sec)'
-          required: true
-          type: string
         path:
           description: 'The path to the Terraform files for this account'
           required: true
