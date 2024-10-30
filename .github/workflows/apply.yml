@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v2
@@ -68,12 +68,18 @@ jobs:
         working-directory: ${{ inputs.path }}
   
       - name: Plan Terraform
+        id: plan
         run: terraform plan -var-file=${{ inputs.environment }}.tfvars
+        working-directory: ${{ inputs.path }}
+      
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
         working-directory: ${{ inputs.path }}
 
       - name: Apply Terraform
         run: terraform apply -auto-approve -var-file=${{ inputs.environment }}.tfvars"
         working-directory: ${{ inputs.path }}
-        
+
       - name: Post-Deployment Notifications
         run: echo "Deployment to ${{ inputs.environment }} environment completed."
