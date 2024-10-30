@@ -23,7 +23,7 @@ on:
   
 jobs:
   development-branch-terraform-plan:
-    name: Terraform Plan for ${{ inputs.account }}
+    name: Terraform Plan for ${{ inputs.path }}
     runs-on: ubuntu-latest
 
     steps:
