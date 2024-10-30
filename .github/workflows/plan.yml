@@ -1,0 +1,58 @@
+# .github/workflows/aws_tf_plan.yml
+name: Terraform Plan for Development
+
+on:
+    workflow_call:
+      inputs:
+        account:
+          description: 'The AWS account to deploy to (e.g., prod, sec)'
+          required: true
+          type: string
+        path:
+          description: 'The path to the Terraform files for this account'
+          required: true
+          type: string       
+        aws_region:
+          required: true
+          type: string
+          description: 'AWS Region'
+        aws_role_to_assume:
+          required: true
+          type: string
+          description: 'IAM Role ARN to assume via OIDC'
+        environment:
+          required: true
+          type: string
+          description: 'IAM Role ARN to assume via OIDC'
+  
+jobs:
+  development-branch-terraform-plan:
+    name: Terraform Plan for ${{ inputs.account }}
+    runs-on: ubuntu-latest
+
+    steps:
+       - name: Checkout code
+         uses: actions/checkout@v3
+       
+       - name: Configure AWS credentials using OIDC
+         uses: aws-actions/configure-aws-credentials@v2
+         with:
+           role-to-assume: ${{ inputs.aws_role_to_assume }}
+           aws-region: ${{ inputs.aws_region }}
+ 
+       - name: Set up Terraform
+         uses: hashicorp/setup-terraform@v2
+         with:
+           terraform_version: 1.1.7
+ 
+       - name: Terraform Init
+         run: terraform init
+         working-directory: ${{ inputs.path }}
+   
+       - name: Plan Terraform
+         run: terraform plan -var-file=${{ inputs.environment }}.tfvars
+         working-directory: ${{ inputs.path }}
+ 
+       - name: Post-Deployment Notifications
+         run: echo "Deployment to ${{ inputs.environment }} environment completed."
+ 
