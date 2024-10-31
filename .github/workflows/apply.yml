@@ -89,11 +89,6 @@ on:
         required: true
         type: string
         
-      path:
-        description: 'The path to the Terraform files for this account'
-        required: true
-        type: string
-
       aws_region:
         required: true
         type: string
@@ -130,7 +125,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -144,8 +139,8 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ${{ inputs.path }}
+
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        working-directory: ${{ inputs.path }}
+

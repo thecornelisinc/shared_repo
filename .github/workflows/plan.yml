@@ -62,16 +62,13 @@ on:
         description: 'The AWS account to deploy to (e.g., dev, sec)'
         required: true
         type: string
-      path:
-        description: 'The path to the Terraform files for this account'
-        required: true
-        type: string
+
 
       aws_region:
         required: true
         type: string
         description: 'AWS Region'
-        
+
       aws_role_to_assume:
         required: true
         type: string
@@ -98,8 +95,8 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ${{ inputs.path }}
+
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: ${{ inputs.path }}
+
