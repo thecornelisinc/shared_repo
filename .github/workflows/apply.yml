@@ -34,12 +34,12 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.snyk_token}}
         with:
-          file: ${{inputs.account}}
+          file: ${{inputs.account}}/main.tf
 
   terraform-apply:
     name: Terraform Apply for ${{ inputs.account }}
     runs-on: ubuntu-latest
-    # needs: snyk-iac-check
+    needs: Synk-IaC-Check
 
     steps:
       - name: Checkout code
