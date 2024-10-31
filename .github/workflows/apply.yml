@@ -149,7 +149,7 @@ jobs:
         run: exit 1
 
       - name: Apply Terraform
-        run: terraform apply -auto-approve -var-file=sec.tfvars"
+        run: terraform apply -auto-approve -var-file=sec.tfvars
 
       - name: Post-Deployment Notifications
         run: echo "Deployment to ${{ inputs.account }} environment completed."
