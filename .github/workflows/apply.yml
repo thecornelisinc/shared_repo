@@ -23,8 +23,6 @@ on:
         required: true
 jobs:
   Synk-IaC-Check:
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials using OIDC
