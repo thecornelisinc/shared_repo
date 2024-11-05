@@ -40,7 +40,6 @@ jobs:
             --severity-threshold=high
             --report
             --sarif-file-output=terraform.synk.scan
-            -d
           sarif: false
 
   terraform-apply:
