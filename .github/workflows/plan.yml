@@ -22,7 +22,6 @@ jobs:
   terraform-apply:
     name: Terraform Apply for ${{ inputs.account }}
     runs-on: ubuntu-latest
-    # needs: snyk-iac-check
 
     steps:
       - name: Checkout code

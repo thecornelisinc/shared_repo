@@ -35,12 +35,9 @@ jobs:
         uses: snyk/actions/iac@master
         env:
           SNYK_TOKEN: ${{ secrets.snyk_token}}
-        with: 
-          args: 
-            --severity-threshold=high
-            --report
-            --sarif-file-output=terraform.synk.scan
-          sarif: false
+      
+      - name: Synk Test
+        run: synk iac test ../../main.tf
 
   terraform-apply:
     name: Terraform Apply for ${{ inputs.account }}
