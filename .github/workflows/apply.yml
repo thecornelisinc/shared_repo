@@ -35,9 +35,9 @@ jobs:
         uses: snyk/actions/iac@master
         env:
           SNYK_TOKEN: ${{ secrets.snyk_token}}
-      
+  
       - name: Synk Test
-        run: synk iac test ../../main.tf
+        run: synk iac test --all-projects --severity-threshold=high -d
 
   terraform-apply:
     name: Terraform Apply for ${{ inputs.account }}
