@@ -1,16 +1,28 @@
-name: AWS Example Workflow
+name: Terraform Apply for Main
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
-
+  workflow_call:
+    inputs:
+      account:
+        description: 'The AWS account to deploy to (e.g., prod, sec)'
+        required: true
+        type: string
+        
+      aws_region:
+        required: true
+        type: string
+        description: 'AWS Region'
+        
+      aws_role_to_assume:
+        required: true
+        type: string
+        description: 'IAM Role ARN to assume via OIDC'
+    secrets:
+      snyk_token:
+        description: 'Snyk API token for authentication'
+        required: true
+        
 jobs:
-
   security-check:
     name: Snyk IaC Security Scan
     runs-on: ubuntu-latest
@@ -31,50 +43,46 @@ jobs:
         if: failure()
         run: echo "Snyk IaC tests failed. Please review security issues."
 
-  terraform:
-    name: 'Terraform'
-    needs: security-check
+  terraform-apply:
+    name: Terraform Apply for ${{ inputs.account }}
     runs-on: ubuntu-latest
-    environment: production
-
+    needs: security-check
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
-
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    # Authenticate to AWS Cloud
-    - name: Configure AWS credentials using OIDC
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::357225030460:role/githubaction
-        aws-region: us-east-1
-
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v4
       
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ inputs.aws_role_to_assume }}
+          aws-region: ${{ inputs.aws_region }}
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.1.7
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      run: terraform fmt -check
+      - name: Terraform Init
+        run: terraform init
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan -input=false
+      - name: Plan Terraform
+        id: plan
+        run: terraform plan -var-file=${{ inputs.account }}.tfvars
+      
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
 
-      # On push to "main", build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
+      - name: Apply Terraform
+        if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+        run: terraform apply -auto-approve -var-file=${{ inputs.account }}.tfvars
+      # - name: Destroy Terraform
+      #   run: terraform destroy -auto-approve -var-file=${{ inputs.account }}.tfvars
+ 
+      - name: Post-Deployment Notifications
+        run: echo "Deployment to ${{ inputs.account }} environment completed."
+
