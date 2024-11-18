@@ -26,7 +26,6 @@ jobs:
   security-check:
     name: Snyk IaC Security Scan
     runs-on: ubuntu-latest
-      labels: ubuntu-20.04-16core
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
