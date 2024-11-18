@@ -51,7 +51,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: terraform/${{ inputs.account}}
+        # working-directory: terraform/${{ inputs.account}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
