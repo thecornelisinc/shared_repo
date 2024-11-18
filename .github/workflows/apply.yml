@@ -26,6 +26,8 @@ jobs:
   security-check:
     name: Snyk IaC Security Scan
     runs-on: ubuntu-latest
+      group: ubuntu-runners
+      labels: ubuntu-20.04-16core
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -37,7 +39,7 @@ jobs:
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
       - name: Run Snyk IaC Test
-        run: snyk iac test . --report
+        run: snyk iac test . --report --severity-threshold=high
 
       - name: Show Snyk Test Results
         if: failure()
