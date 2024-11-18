@@ -47,7 +47,6 @@ jobs:
     name: Terraform Apply for ${{ inputs.account }}
     runs-on: ubuntu-latest
     needs: security-check
-    permission: write
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
