@@ -52,7 +52,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working_directory: ${{ inputs.account}}
+        working-directory: ${{ inputs.account}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
