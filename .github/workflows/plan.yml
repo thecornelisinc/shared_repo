@@ -17,11 +17,41 @@ on:
         required: true
         type: string
         description: 'IAM Role ARN to assume via OIDC'
-
+        
+    secrets: 
+      snyk_token:
+        required: true
+        description: 'Snyk API token for authentication'
 jobs:
+  Security-Checks:
+    name: Snyk IaC Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout Repository
+      - name: Checkout repository
+        uses: actions/check@v3
+    # Install Snyk IaC
+      - name: Install Snyk
+        run: npm install -g snyk
+
+    # Authenicate with Snyk
+      - name: Authenticate Snyk 
+        run: snyk auth ${{ secrets.snyk_tokens
+
+    # Run Snyk Test
+      - name: Run Snyk IaC Rest
+        run: snyk iac scan . --report --severity-threshold=high
+        continue-on-error: false
+
+    # Show Sbyk IaC Test Result
+      - name: Show failed test result
+        if: failure()
+        run: echo "Snyk IaC test failed. Please review security issues"
+      
   terraform-apply:
     name: Terraform Apply for ${{ inputs.account }}
     runs-on: ubuntu-latest
+    needs: Security-Checks
 
     steps:
       - name: Checkout code
@@ -34,11 +64,12 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.1.7
 
       - name: Terraform Init
+        id: init
         run: terraform init
 
       - name: Plan Terraform
